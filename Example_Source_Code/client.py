@@ -30,7 +30,7 @@ def on_closing(event=None):
     send()
 
 top = tkinter.Tk()
-top.title("Chatter")
+top.title("Chat Client")
 
 messages_frame = tkinter.Frame(top)
 scrollbar = tkinter.Scrollbar(messages_frame)
