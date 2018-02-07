@@ -21,7 +21,6 @@ def handle_incoming_connections():
 
 def handle_client(client, client_address):
     """Handles a single client connection."""
-
     name = client.recv(bufSize).decode("utf8")
     welcome = 'Welcome %s!' % name
     client.send(bytes(welcome, "utf8"))
@@ -67,45 +66,47 @@ bufSize = 4096
 address = (host, port)
 
 window = tkinter.Tk()
-window.title("Chat Server")
-window.geometry('{}x{}'.format(600, 900))
+window.title("Chat Server Mode")
+#window.geometry('{}x{}'.format(450, 900))
 
 # Server info header frame
-Connection_info = tkinter.LabelFrame(window, text="Server Information", fg="green", bg="powderblue")
+Connection_info = tkinter.LabelFrame(window, text="Server Information",font=("arial 11 bold"), fg="#5D4C46", bg="#F2EDD8",height=50)
 Connection_info.pack(expand=tkinter.YES, fill=tkinter.BOTH)
 
 #  Server info frame
 server_info_frame = tkinter.Frame(Connection_info)
-server_info_frame.pack(padx=10, pady=10)
+server_info_frame.pack(expand=tkinter.YES,padx=10, pady=10)
 
-serverIpLabel = tkinter.Label(server_info_frame, text="IP-Address: ", relief="groove",
-                   anchor="center", width=15).grid(row=0, column=0, ipadx=10, ipady=5)
-serverIpLabel = tkinter.Label(server_info_frame, text=host, relief="sunken",
+serverIpLabel = tkinter.Label(server_info_frame, text="IP-Address: ",font=("arial 11 bold"), fg="#5D4C46", relief="groove",
+                   anchor="center", width=20).grid(row=0, column=0, ipadx=10, ipady=5)
+serverIpLabel = tkinter.Label(server_info_frame, text=host ,font=("arial 11 bold"), fg="#5D4C46", relief="sunken",
                    anchor="center", width=20).grid(row=0, column=2, ipadx=10, ipady=5)
 
-serverPortLabel = tkinter.Label(server_info_frame, text="Port : ", relief="groove",
-                     anchor="center", width=15).grid(row=1, column=0, ipadx=10, ipady=5)
-serverPortLabel = tkinter.Label(server_info_frame, text=port, relief="sunken",
+serverPortLabel = tkinter.Label(server_info_frame, text="Port : ",font=("arial 11 bold"), fg="#5D4C46", relief="groove",
+                     anchor="center", width=20).grid(row=1, column=0, ipadx=10, ipady=5)
+serverPortLabel = tkinter.Label(server_info_frame, text=port, font=("arial 11 bold"), fg="#5D4C46", relief="sunken",
                      anchor="center", width=20).grid(row=1, column=2, ipadx=10, ipady=5)
 
 # Server console
-server_console_frame = tkinter.LabelFrame(window, text="Console", fg="green", bg="powderblue")
-server_console_frame.pack()
+server_console_frame = tkinter.LabelFrame(window, text="Console",font=("arial 11 bold"), fg="#5D4C46", bg="#F2EDD8")
+server_console_frame.pack(expand=tkinter.YES, fill=tkinter.BOTH)
 
-server_console = tkinter.Text(server_console_frame, font=("arial 12 bold italic"), width=50, height=15)
-server_console.pack()
+server_console = tkinter.Text(server_console_frame, font=("arial 9 bold"), width=50, height=15)
+server_console.pack(expand=tkinter.YES, fill=tkinter.BOTH)
 
 # Connection history
-history_frame = tkinter.LabelFrame(window, text="Connection History", fg="green", bg="powderblue")
-history_frame.pack()
+history_frame = tkinter.LabelFrame(window, text="Connection History",font=("arial 11 bold"), fg="#5D4C46", bg="#F2EDD8")
+history_frame.pack(expand=tkinter.YES, fill=tkinter.BOTH)
 
-history = tkinter.Text(history_frame, font=("arial 12 bold italic"), width=50, height=15)
-history.pack()
+history = tkinter.Text(history_frame, font=("arial 9 bold"), width=50, height=15)
+history.pack(expand=tkinter.YES, fill=tkinter.BOTH)
 
 SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(address)
 SERVER.listen(10)
 ACCEPT_THREAD = Thread(target=handle_incoming_connections)
 ACCEPT_THREAD.start()
+
 window.mainloop()
+ACCEPT_THREAD.join()
 SERVER.close()
