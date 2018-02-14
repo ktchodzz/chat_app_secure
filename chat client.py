@@ -6,8 +6,7 @@ def receive():
     """Handles receiving of messages."""
     while True:
         try:
-            msg = client_socket.recv(BUFSIZ).decode("utf8")
-            print(msg)
+            msg = client_socket.recv(bufSize).decode("utf8")
             msg_list.insert(tkinter.END, msg)
         except OSError:
             break
@@ -29,21 +28,17 @@ def on_closing(event=None):
 
 host = "127.0.0.1"
 port = 6700
-BUFSIZ = 4096
+bufSize = 4096
 address = (host, port)
-
-client_socket = socket(AF_INET, SOCK_STREAM)
-client_socket.connect(address)
 
 # ui window
 top = tkinter.Tk()
-top.title("Chat Client Mode")
-#top.geometry('{}x{}'.format(400, 400))
+top.title("Chat Client")
 
 # message frame
 messages_frame = tkinter.Frame(top)
-my_msg = tkinter.StringVar()  # For the messages to be sent.
-scrollbar = tkinter.Scrollbar(messages_frame)  # To navigate through past messages.
+my_msg = tkinter.StringVar()
+scrollbar = tkinter.Scrollbar(messages_frame) 
 # Following will contain the messages.
 msg_list = tkinter.Listbox(messages_frame, height=15, width=80, yscrollcommand=scrollbar.set)
 scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
@@ -62,6 +57,9 @@ send_button = tkinter.Button(send_frame, text="Send", command=send, width=13, bg
 send_button.pack()
 
 top.protocol("WM_DELETE_WINDOW", on_closing)
+
+client_socket = socket(AF_INET, SOCK_STREAM)
+client_socket.connect(address)
 
 receive_thread = Thread(target=receive)
 receive_thread.start()

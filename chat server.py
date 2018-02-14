@@ -49,8 +49,12 @@ def broadcast(msg):
         sock.send(bytes(msg, "utf8"))
 
 
-def handle_incoming_client_message():
-    "Handle incoming client message"
+def announcement(event=None):
+    message = my_msg.get()
+    my_msg.set("")
+    announceText = "Server has announced: \"%s\"" % message
+    server_console.insert(tkinter.END,  announceText)
+    broadcast(announceText)
 
 
 def display_clients():
@@ -66,8 +70,7 @@ bufSize = 4096
 address = (host, port)
 
 window = tkinter.Tk()
-window.title("Chat Server Mode")
-#window.geometry('{}x{}'.format(450, 900))
+window.title("Chat Server")
 
 # Server info header frame
 Connection_info = tkinter.LabelFrame(window, text="Server Information",font=("arial 11 bold"), fg="#5D4C46", bg="#F2EDD8",height=50)
@@ -89,17 +92,34 @@ serverPortLabel = tkinter.Label(server_info_frame, text=port, font=("arial 11 bo
 
 # Server console
 server_console_frame = tkinter.LabelFrame(window, text="Console",font=("arial 11 bold"), fg="#5D4C46", bg="#F2EDD8")
+scrollbar = tkinter.Scrollbar(server_console_frame)
+server_console = tkinter.Listbox(server_console_frame, font=("arial 9 bold"), width=50, height=15, yscrollcommand=scrollbar.set)
+scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+server_console.pack(side=tkinter.LEFT, expand=tkinter.YES, fill=tkinter.BOTH)
 server_console_frame.pack(expand=tkinter.YES, fill=tkinter.BOTH)
-
-server_console = tkinter.Text(server_console_frame, font=("arial 9 bold"), width=50, height=15)
-server_console.pack(expand=tkinter.YES, fill=tkinter.BOTH)
 
 # Connection history
 history_frame = tkinter.LabelFrame(window, text="Connection History",font=("arial 11 bold"), fg="#5D4C46", bg="#F2EDD8")
+scrollbar = tkinter.Scrollbar(history_frame)
+history = tkinter.Listbox(history_frame, font=("arial 9 bold"), width=50, height=15, yscrollcommand=scrollbar.set)
+scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+history.pack(side=tkinter.LEFT, expand=tkinter.YES, fill=tkinter.BOTH)
 history_frame.pack(expand=tkinter.YES, fill=tkinter.BOTH)
 
-history = tkinter.Text(history_frame, font=("arial 9 bold"), width=50, height=15)
-history.pack(expand=tkinter.YES, fill=tkinter.BOTH)
+# Announcement section
+messages_frame = tkinter.Frame(window)
+my_msg = tkinter.StringVar()
+scrollbar = tkinter.Scrollbar(messages_frame)
+
+send_frame = tkinter.LabelFrame(window, bg="#F2EDD8")
+send_frame.pack()
+
+entry_field = tkinter.Entry(send_frame, textvariable=my_msg,width=65)
+entry_field.pack(side=tkinter.LEFT)
+entry_field.bind("<Return>", announcement)
+
+send_button = tkinter.Button(send_frame, text="send", command=announcement, width=13, bg='#FFAE5D',activebackground='#F8DEBD')
+send_button.pack()
 
 SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(address)
