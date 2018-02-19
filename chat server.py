@@ -2,13 +2,14 @@
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import tkinter
+import re
 
 
 def handle_incoming_connections():
     """Sets up handling for incoming clients."""
 
     while True:
-        welcomeMessage = "Connected to the server. Please type your name first."
+        welcomeMessage = "Connected to the server."
         exitInstruction = "If you ever want to exit, type {exit}."
 
         client, client_address = SERVER.accept()
@@ -32,8 +33,14 @@ def handle_client(client, client_address):
     while True:
         msg = client.recv(bufSize).decode("utf8")
         if msg != "{exit}":
-            broadcast(name + ": " + msg)
-            server_console.insert(tkinter.END,  "%s: %s\n" % (name, msg))
+            matchObj = msg.split(": ")
+            if len(matchObj) > 1:
+                message = "(Private) %s to %s: %s" % (name, matchObj[0], matchObj[1])
+                nameList = [matchObj[0], name]
+                sent_individual(message, nameList)
+            else:
+                broadcast(name + ": " + msg)
+                server_console.insert(tkinter.END,  "%s: %s\n" % (name, msg))
         else:
             client.close()
             history.insert(tkinter.END, "%s:%s has disconnected.\n" % client_address)
@@ -57,8 +64,15 @@ def announcement(event=None):
     broadcast(announceText)
 
 
-def display_clients():
-    "Show connected clients"
+def sent_individual(msg, nameList):
+    "Sent a message to one client"
+    sendTimes = 0
+    for sock in clients:
+        if clients[sock] in nameList:
+            sendTimes += 1
+            sock.send(bytes(msg, "utf8"))
+    if sendTimes != len(nameList):
+        broadcast(msg)
 
 
 clients = {}
