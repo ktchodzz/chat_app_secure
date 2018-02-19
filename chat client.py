@@ -44,18 +44,18 @@ top.title("Chat Client - %s" % c_name)
 
 connection_frame = tkinter.LabelFrame(top, text="Online Connections",font=("arial 11 bold"), fg="#5D4C46", bg="#F2EDD8")
 scrollbar = tkinter.Scrollbar(connection_frame)
-online_conn = tkinter.Listbox(connection_frame, font=("arial 9 bold"), width=50, height=15, yscrollcommand=scrollbar.set)
+online_conn = tkinter.Listbox(connection_frame, font=("arial 9 bold"), width=20, yscrollcommand=scrollbar.set)
 scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 online_conn.pack(side=tkinter.LEFT, expand=tkinter.YES, fill=tkinter.BOTH)
 connection_frame.pack(side=tkinter.LEFT, expand=tkinter.YES, fill=tkinter.BOTH)
 
 # message frame
 chat_frame = tkinter.Frame(top)
-messages_frame = tkinter.Frame(top)
+messages_frame = tkinter.LabelFrame(top, text="Chatting",font=("arial 11 bold"), fg="#5D4C46", bg="#F2EDD8")
 my_msg = tkinter.StringVar()
 scrollbar = tkinter.Scrollbar(messages_frame)
 # Following will contain the messages.
-msg_list = tkinter.Listbox(messages_frame, height=15, width=80, yscrollcommand=scrollbar.set)
+msg_list = tkinter.Listbox(messages_frame, height=15, width=70, yscrollcommand=scrollbar.set)
 scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 msg_list.pack(side=tkinter.LEFT, expand=tkinter.YES, fill=tkinter.BOTH)
 messages_frame.pack(expand=tkinter.YES, fill=tkinter.BOTH)
@@ -64,7 +64,7 @@ messages_frame.pack(expand=tkinter.YES, fill=tkinter.BOTH)
 send_frame = tkinter.LabelFrame(top, bg="#F2EDD8")
 send_frame.pack()
 
-entry_field = tkinter.Entry(send_frame, textvariable=my_msg,width=65)
+entry_field = tkinter.Entry(send_frame, textvariable=my_msg,width=55)
 entry_field.pack(side=tkinter.LEFT)
 entry_field.bind("<Return>", send)
 
