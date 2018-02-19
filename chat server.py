@@ -128,5 +128,4 @@ ACCEPT_THREAD = Thread(target=handle_incoming_connections)
 ACCEPT_THREAD.start()
 
 window.mainloop()
-ACCEPT_THREAD.join()
 SERVER.close()
