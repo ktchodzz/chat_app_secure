@@ -26,11 +26,14 @@ def handle_client(client, client_address):
     name = client.recv(bufSize).decode("utf8")
     msg = "%s has joined the chat!" % name
     broadcast(msg)
+
     clientInfo = "%s:%s has choosen name '%s'\n" % (client_address[0], client_address[1], name)
     server_console.insert(tkinter.END, clientInfo)
+    
     clients[client] = name
     clientNameList.append(name)
     broadcast("-::-".join(clientNameList))
+
     while True:
         msg = client.recv(bufSize).decode("utf8")
         if msg != "{exit}":

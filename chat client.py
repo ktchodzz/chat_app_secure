@@ -8,7 +8,6 @@ def receive():
     while True:
         try:
             msg = client_socket.recv(bufSize).decode("utf8")
-            # do save new conn to list here by if-else
             if len(msg.split("-::-")) > 1:
                 online_conn.delete(0, tkinter.END)
                 clients = msg.split("-::-")
