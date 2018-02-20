@@ -2,7 +2,7 @@
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import tkinter
-import re
+import time
 
 
 def handle_incoming_connections():
@@ -22,30 +22,33 @@ def handle_incoming_connections():
 
 def handle_client(client, client_address):
     """Handles a single client connection."""
+    time.sleep(0.5)
     name = client.recv(bufSize).decode("utf8")
-    welcome = 'Welcome %s!' % name
-    client.send(bytes(welcome, "utf8"))
     msg = "%s has joined the chat!" % name
     broadcast(msg)
-    server_console.insert(tkinter.END, "%s:%s has choosen name '%s'\n" % (client_address[0], client_address[1], name))
+    clientInfo = "%s:%s has choosen name '%s'\n" % (client_address[0], client_address[1], name)
+    server_console.insert(tkinter.END, clientInfo)
     clients[client] = name
-
+    clientNameList.append(name)
+    broadcast("-::-".join(clientNameList))
     while True:
         msg = client.recv(bufSize).decode("utf8")
         if msg != "{exit}":
-            matchObj = msg.split(": ")
-            if len(matchObj) > 1:
-                message = "(Private) %s to %s: %s" % (name, matchObj[0], matchObj[1])
-                nameList = [matchObj[0], name]
-                sent_individual(message, nameList)
+            msgArray = msg.split(": ")
+            if len(msgArray) > 1:
+                message = "(Private) %s to %s: %s" % (name, msgArray[0], " ".join(msgArray[1::]))
+                sent_individual(name, msgArray[0], message)
+                server_console.insert(tkinter.END, message)
             else:
                 broadcast(name + ": " + msg)
-                server_console.insert(tkinter.END,  "%s: %s\n" % (name, msg))
+                server_console.insert(tkinter.END, "%s: %s\n" % (name, msg))
         else:
             client.close()
-            history.insert(tkinter.END, "%s:%s has disconnected.\n" % client_address)
             del clients[client]
+            history.insert(tkinter.END, "%s:%s has disconnected.\n" % client_address)
+            clientNameList.remove(name)
             broadcast("%s has left the chat." % name)
+            broadcast("-::-".join(clientNameList))
             break
 
 
@@ -64,18 +67,24 @@ def announcement(event=None):
     broadcast(announceText)
 
 
-def sent_individual(msg, nameList):
+def sent_individual(senderName, recieverName, msg):
     "Sent a message to one client"
-    sendTimes = 0
-    for sock in clients:
-        if clients[sock] in nameList:
-            sendTimes += 1
-            sock.send(bytes(msg, "utf8"))
-    if sendTimes != len(nameList):
-        broadcast(msg)
+    isSent = False
+    for recieverSock in clients:
+        if clients[recieverSock] == recieverName:
+            for senderSock in clients:
+                if clients[senderSock] == senderName:
+                    recieverSock.send(bytes(msg, "utf8"))
+                    senderSock.send(bytes(msg, "utf8"))
+                    isSent = True
+                    break
+            break
+    if not isSent:
+        broadcast("%s: %s" % (senderName, msg.split(": ")[1]))
 
 
 clients = {}
+clientNameList = ["Server (default)"]
 addresses = {}
 
 host = "127.0.0.1"

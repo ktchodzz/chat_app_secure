@@ -1,16 +1,21 @@
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import tkinter
-import re
 
 def receive():
     """Handles receiving of messages."""
-    client_socket.send(bytes(c_name, "utf8"))
+    client_socket.send(bytes(clientName, "utf8"))
     while True:
         try:
             msg = client_socket.recv(bufSize).decode("utf8")
             # do save new conn to list here by if-else
-            msg_list.insert(tkinter.END, msg)
+            if len(msg.split("-::-")) > 1:
+                online_conn.delete(0, tkinter.END)
+                clients = msg.split("-::-")
+                for client in clients:
+                    online_conn.insert(tkinter.END, client)
+            else:
+                msg_list.insert(tkinter.END, msg)
         except OSError:
             break
 
@@ -34,15 +39,14 @@ port = 6700
 bufSize = 4096
 address = (host, port)
 
-c_name = input("Enter your name: ")
+clientName = input("Enter your name: ")
 
 # ui window
 top = tkinter.Tk()
-top.title("Chat Client - %s" % c_name)
+top.title("Chat Client - %s" % clientName)
 
 # Online Connection List
-
-connection_frame = tkinter.LabelFrame(top, text="Online Connections",font=("arial 11 bold"), fg="#5D4C46", bg="#F2EDD8")
+connection_frame = tkinter.LabelFrame(top, text="Online Connections", font=("arial 11 bold"), fg="#5D4C46", bg="#F2EDD8")
 scrollbar = tkinter.Scrollbar(connection_frame)
 online_conn = tkinter.Listbox(connection_frame, font=("arial 9 bold"), width=20, yscrollcommand=scrollbar.set)
 scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
