@@ -18,6 +18,7 @@ def receive():
         except OSError:
             break
 
+
 def send(event=None):
      msg = my_msg.get()
      my_msg.set("")  # Clears input field.
@@ -26,6 +27,7 @@ def send(event=None):
      if msg == "{exit}":
         client_socket.close()
         top.quit()
+        
 
 def on_closing(event=None):
     """This function is to be called when the window is closed."""

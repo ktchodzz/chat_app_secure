@@ -35,23 +35,26 @@ def handle_client(client, client_address):
     broadcast("-::-".join(clientNameList))
 
     while True:
-        msg = client.recv(bufSize).decode("utf8")
-        if msg != "{exit}":
-            msgArray = msg.split(": ")
-            if len(msgArray) > 1:
-                message = "(Private) %s to %s: %s" % (name, msgArray[0], " ".join(msgArray[1::]))
-                sent_individual(name, msgArray[0], message)
-                server_console.insert(tkinter.END, message)
+        try:
+            msg = client.recv(bufSize).decode("utf8")
+            if msg != "{exit}":
+                msgArray = msg.split(": ")
+                if len(msgArray) > 1:
+                    message = "(Private) %s to %s: %s" % (name, msgArray[0], " ".join(msgArray[1::]))
+                    sent_individual(name, msgArray[0], message)
+                    server_console.insert(tkinter.END, message)
+                else:
+                    broadcast(name + ": " + msg)
+                    server_console.insert(tkinter.END, "%s: %s" % (name, msg))
             else:
-                broadcast(name + ": " + msg)
-                server_console.insert(tkinter.END, "%s: %s\n" % (name, msg))
-        else:
-            client.close()
-            del clients[client]
-            history.insert(tkinter.END, "%s:%s has disconnected.\n" % client_address)
-            clientNameList.remove(name)
-            broadcast("%s has left the chat." % name)
-            broadcast("-::-".join(clientNameList))
+                client.close()
+                del clients[client]
+                history.insert(tkinter.END, "%s:%s has disconnected." % client_address)
+                clientNameList.remove(name)
+                broadcast("%s has left the chat." % name)
+                broadcast("-::-".join(clientNameList))
+                break
+        except:
             break
 
 
@@ -68,6 +71,22 @@ def announcement(event=None):
     announceText = "Server has announced: \"%s\"" % message
     server_console.insert(tkinter.END,  announceText)
     broadcast(announceText)
+
+def kick_client():
+    selection = history.curselection()
+    client_port = str(history.get(selection)).split(" has connected.")[0]
+    for socket in clients:
+        client_address_info = client_port.split(":")
+        client_address_info_text =  "raddr=('%s', %s)" % (client_address_info[0], client_address_info[1])
+        if client_address_info_text in str(socket):
+            socket.close()
+            name = clients[socket]
+            del clients[socket]
+            history.insert(tkinter.END, "%s has disconnected." % history.get(selection))
+            clientNameList.remove(name)
+            broadcast("%s has left the chat." % name)
+            broadcast("-::-".join(clientNameList))
+            break
 
 
 def sent_individual(senderName, recieverName, msg):
@@ -128,6 +147,8 @@ server_console_frame.pack(expand=tkinter.YES, fill=tkinter.BOTH)
 history_frame = tkinter.LabelFrame(window, text="Connection History",font=("arial 11 bold"), fg="#5D4C46", bg="#F2EDD8")
 scrollbar = tkinter.Scrollbar(history_frame)
 history = tkinter.Listbox(history_frame, font=("arial 9 bold"), width=50, height=15, yscrollcommand=scrollbar.set)
+kick_button = tkinter.Button(history_frame, text="Kick", command=kick_client, width=13, bg='#FFAE5D',activebackground='#F8DEBD')
+kick_button.pack()
 scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 history.pack(side=tkinter.LEFT, expand=tkinter.YES, fill=tkinter.BOTH)
 history_frame.pack(expand=tkinter.YES, fill=tkinter.BOTH)
