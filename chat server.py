@@ -1,9 +1,10 @@
 """Server for multithreaded (asynchronous) chat application."""
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
+from tkinter import messagebox
+import socketserver
 import tkinter
 import time
-
 
 def handle_incoming_connections():
     """Sets up handling for incoming clients."""
@@ -12,8 +13,21 @@ def handle_incoming_connections():
         welcomeMessage = "Connected to the server."
         exitInstruction = "If you ever want to exit, type {exit}."
 
+        # Firewall goes here
         client, client_address = SERVER.accept()
-        history.insert(tkinter.END, "%s:%s has connected.\n" % client_address)
+         # Note: if do this method must implement to close the client window too (Client window stills not close)
+        for ban in banned_addr:
+            if ban == client_address:
+                client.close()
+                continue
+        result = messagebox.askquestion("Confirm", "Are you sure to accept %s:%s?" % client_address, icon='warning')
+        if result == 'no':
+            client.send(bytes("{{{exit}}}", "utf8"))
+            messagebox.showinfo("Ban", "Banned")
+            banned_addr.append(client_address)
+            client.close()
+            continue
+        history.insert(tkinter.END, "%s:%s has connected." % client_address)
         client.send(bytes(welcomeMessage, "utf8"))
         client.send(bytes(exitInstruction, "utf8"))
         addresses[client] = client_address
@@ -94,6 +108,7 @@ host = "127.0.0.1"
 port = 6700
 bufSize = 4096
 address = (host, port)
+banned_addr = []
 
 window = tkinter.Tk()
 window.title("Chat Server")

@@ -13,6 +13,9 @@ def receive():
                 clients = msg.split("-::-")
                 for client in clients:
                     online_conn.insert(tkinter.END, client)
+            elif msg == "{{{exit}}}":
+                my_msg.set("{exit}")
+                send()
             else:
                 msg_list.insert(tkinter.END, msg)
         except OSError:
